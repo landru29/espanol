@@ -1,4 +1,5 @@
 .App {
+  margin-top: 20px;
   text-align: center;
 }
 
@@ -35,4 +36,19 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.entry {
+  margin: 10px 0 10px 0;
+}
+
+.entry.selected button.btn {
+  background: #fff;
+  color: #000;
+}
+
+.entry.success button.btn {
+  background: #51ff6e;
+  color: #053001;
 }
