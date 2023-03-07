@@ -1,0 +1,16 @@
+:80 {
+        # Set this path to your site's directory.
+        root * /usr/share/caddy
+
+        # encode to gzip
+        encode gzip
+
+        # find the file or serve index.html
+        try_files {path} /index.html
+
+        # Enable the static file server.
+        file_server
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
