@@ -1,0 +1,24 @@
+.entry {
+    margin: 10px 0 10px 0;
+
+    &.selected {
+        button.btn {
+            background: #fff;
+            color: #000;
+        }
+    }
+
+    &.success {
+        button.btn {
+            background: #51ff6e;
+            color: #053001;
+          }
+    }
+
+    &.fail {
+        button.btn {
+            background: #ff5151;
+            color: #300101;
+          }
+    }
+}

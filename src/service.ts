@@ -8,9 +8,9 @@ export interface Vocabulary {
   }
 
 export class Service {
-    static get(): Observable<Vocabulary[]> {
+    static get(url: string): Observable<Vocabulary[]> {
         return ajax({
-            url: `/vocabulary.json?${makeid(5)}`,
+            url: `${url}?${makeid(5)}`,
         }).pipe(
             map((response: AjaxResponse<any>) => {
                 return response.response.map((elt: any) => {
