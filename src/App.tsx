@@ -21,7 +21,7 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   componentWillMount() {
-    Service.get('https://storage.gra.cloud.ovh.net/v1/AUTH_3a41d7684b854e98b76a6a8b52ec32fd/weather/vocabulary.json').subscribe({
+    Service.get('/vocabulary.json').subscribe({
       next: (allVoccabulary: Vocabulary[]) => {
         this.setState({allVoccabulary});
       }
