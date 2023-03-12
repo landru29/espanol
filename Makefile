@@ -8,9 +8,9 @@ TAG:=$(shell git describe --exact-match --tags $(GIT_CURRENT_HASH) 2>/dev/null)
 TAG:=$(TAG) latest
 DOCKER_IMAGES := $(foreach t, $(TAG), $(shell echo '-t $(DOCKER_REGISTRY)/$(APP_NAME):$(t)' ))
 
-.PHONY: build clean package docker publish
+.PHONY: build clean package docker publish csv
 
-build: node_modules
+build: node_modules csv
 	npm run build && cd build && git init && git remote add origin git@github.com:landru29/landru29.github.io.git && git add . && git commit -m "Initial commit"
 
 publish: build
@@ -29,3 +29,6 @@ package: docker
 
 clean:
 	$(DEL) build
+
+csv: 
+	mv ~/Téléchargement/vocabul*.csv . || true
