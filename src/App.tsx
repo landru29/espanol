@@ -21,11 +21,25 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   componentWillMount() {
-    Service.get('/vocabulary.json').subscribe({
-      next: (allVoccabulary: Vocabulary[]) => {
-        this.setState({allVoccabulary});
+    let allVoccabulary : Vocabulary[] = [];
+    let counter = 0;
+
+    Service.gidList().subscribe({
+      next: (idx: string[]) => {
+        console.log(idx);
+        Service.getAll(idx).subscribe({
+          next: (voc: Vocabulary[])=> {
+            allVoccabulary = [...allVoccabulary, ...voc]
+            counter++;
+
+            if (counter === idx.length-1) {
+              this.setState({allVoccabulary});
+            }
+          }
+        })
       }
-    })
+    });
+
   }
 
   countSuccess() {
@@ -43,6 +57,8 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="App">
+        <span>{allVoccabulary.length} words</span>
+        {allVoccabulary.length===0 && <span> - loading ...</span>}
         <Counter fail={fail} success={success}/>
         <Game count={6} allVoccabulary={allVoccabulary} countFail={this.countFail.bind(this)} countSuccess={this.countSuccess.bind(this)}/>
       </div>
