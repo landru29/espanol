@@ -1,0 +1,21 @@
+.progress {
+    height: 20px;
+    width: 100%;
+    font-weight: bold;
+    background-color: #e0e0de;
+    border-radius: 50px;
+    
+    .label {
+        padding: 5px;
+        color: 'white';
+        font-weight: 'bold';
+    }
+
+    .bar {
+        height: 100%;
+        transition: width 1s ease-in-out;
+        background-color: #0f0;
+        border-radius: inherit;
+        text-align: right;
+    };
+}

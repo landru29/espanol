@@ -20,20 +20,24 @@ export class Service {
         );
     }
 
-    static gidList(): Observable<string[]> {
+    static gidList(): Observable<{(name: string):string}> {
         return ajax({
             url: (document as any).url,
             responseType: 'text',
         }).pipe(
             map((response: AjaxResponse<any>) => {
-                return response.response.split("\n").map((line: string)=>{
-                    return line.trim().split(',')[0];
-                })
+                return response.response.split("\n").reduce((all: {(name: string):string}, line: string)=>{
+                    const splitter = line.trim().split(',');
+                    (all as any)[`${splitter[splitter.length-1]}`] = splitter[0];
+                    return all;
+                }, {});
             })
         );
     }
 
-    static getAll(idx:string[]): Observable<Vocabulary[]> {
+    static getAll(desc:{(name: string): string}): Observable<{(name: string):Vocabulary[]}> {
+        const idx = Object.keys(desc).map((name: string) => (desc as any)[name])
+        
         const urls = idx.map((index) => {
             return `${(document as any).url}&gid=${index}`;
         });
@@ -42,8 +46,8 @@ export class Service {
             return ajax<string>({
                 url,
                 responseType: 'text',
-            }).pipe(
-                map((response: AjaxResponse<string>) => {
+            }).pipe<Vocabulary[]>(
+                map<AjaxResponse<string>, Vocabulary[]>((response: AjaxResponse<string>) => {
                     const lines = response.response.split("\n").map((elt: string) => elt.trim())
                     return lines.map((line: string) => {
                         const splited = line.split(',');
@@ -52,39 +56,18 @@ export class Service {
                             es: `${splited[splited.length-1]}`,
                         } as Vocabulary
                     })
-                })
+                }),
+            ).pipe(
+                map<Vocabulary[], {(name: string):Vocabulary[]}>((voc: Vocabulary[]) => {
+                    const out: {(name: string):Vocabulary[]} = {} as {(name: string):Vocabulary[]};
+                    (out as any)[`${(desc as any)[url]}`] = voc;
+                    return out;
+                }),
             )
         });
 
         return concat(...obs);
     }
-
-    // static getAll(idx:string[]): Observable<any> {
-    //     const urls = idx.map((index) => {
-    //         return `${(document as any).url}&gid=${index}`;
-    //     });
-    //     console.log(urls);
-    //     return from(urls).pipe(
-    //         concatMap((url: string, id: number) => {
-    //             console.log(url);
-    //             return ajax<string>({
-    //                 url,
-    //                 responseType: 'text',
-    //             })
-    //         }),
-    //         mergeMap((response: AjaxResponse<string>) => {
-    //             const lines = response.response.split("\n").map((elt: string) => elt.trim())
-    //             return lines.map((line: string) => {
-    //                 const splited = line.split(',');
-    //                 return {
-    //                     fr: `${splited[0]}`,
-    //                     es: `${splited[splited.length-1]}`,
-    //                 } as Vocabulary
-    //             })
-    //         }),
-    //         tap<Vocabulary>(voc => console.log("Decoded response", voc))
-    //     )
-    // }
 }
 
 function makeid(length: number): string {
