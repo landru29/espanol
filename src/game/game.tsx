@@ -117,6 +117,27 @@ export default class Game extends React.PureComponent<Props, State> {
         });
     }
 
+    sort(count: number): Vocabulary[] {
+        const working: Vocabulary[] = [];
+        const alreadyTaken: number[] = [];
+        for (let i=0; i<this.props.count; i++) {
+            let idx = 0
+            do {
+                idx = Math.round(Math.random() * this.props.allVoccabulary.length);
+            } while (alreadyTaken.includes(idx));
+            alreadyTaken.push(idx);
+            working.push(this.props.allVoccabulary[idx]);
+        }
+
+        return working;
+    }
+
+    answers(voc: Vocabulary[]): string[] {
+        return voc.map((elt: Vocabulary) => {
+            return elt.es
+        }).sort((a, b) => 0.5 - Math.random());
+    }
+
     generate(force=false) {
         if (this.props.allVoccabulary.length == 0) {
             return;
@@ -126,15 +147,10 @@ export default class Game extends React.PureComponent<Props, State> {
             return;
         }
 
-        const working: Vocabulary[] = [];
-        for (let i=0; i<this.props.count; i++) {
-        const idx = Math.floor(Math.random() * this.props.allVoccabulary.length);
-        working.push(this.props.allVoccabulary[idx]);
-        }
+        const working: Vocabulary[] = this.sort(this.props.count);
 
-        const quiz = working.map((elt: Vocabulary) => {
-        return elt.es
-        }).sort((a, b) => 0.5 - Math.random());
+        // melt the answers.
+        const quiz = this.answers(working);
 
         const firstSuccess = working.map((elt: Vocabulary) => false);
         const secondSuccess = working.map((elt: Vocabulary) => false);

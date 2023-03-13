@@ -52,8 +52,8 @@ export class Service {
                     return lines.map((line: string) => {
                         const splited = line.split(',');
                         return {
-                            fr: `${splited[0]}`,
-                            es: `${splited[splited.length-1]}`,
+                            fr: `${splited[0]}`.toLowerCase(),
+                            es: `${splited[splited.length-1]}`.toLowerCase(),
                         } as Vocabulary
                     })
                 }),
