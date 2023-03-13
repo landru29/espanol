@@ -10,6 +10,7 @@ interface Props  {
     allVoccabulary: Vocabulary[];
     countFail: () => void;
     countSuccess: () => void;
+    trigger?: number;
 }
 
 interface State {
@@ -26,7 +27,7 @@ interface State {
 
 export default class Game extends React.PureComponent<Props, State> {
     componentDidUpdate() {
-        this.generate();
+        this.checkToRegen();
     }
 
     toggleFirst(idx: number) {
@@ -64,8 +65,11 @@ export default class Game extends React.PureComponent<Props, State> {
     }
 
     checkToRegen() {
-        if (this.state.firstSuccess.filter((elt) => !elt).length === 0) {
-            this.generate(true);
+        const trigger = this.props.trigger || this.props.count/2;
+        const notDone = ((this.state || {}).firstSuccess || []).filter((elt) => !elt).length;
+        const total = ((this.state || {}).working || []).length
+        if (total === 0 || notDone < (this.props.count - trigger)) {
+            this.generate();
         }
     }
 
@@ -120,7 +124,7 @@ export default class Game extends React.PureComponent<Props, State> {
     sort(count: number): Vocabulary[] {
         const working: Vocabulary[] = [];
         const alreadyTaken: number[] = [];
-        for (let i=0; i<this.props.count; i++) {
+        for (let i=0; i<count; i++) {
             let idx = 0
             do {
                 idx = Math.round(Math.random() * this.props.allVoccabulary.length);
@@ -138,19 +142,59 @@ export default class Game extends React.PureComponent<Props, State> {
         }).sort((a, b) => 0.5 - Math.random());
     }
 
-    generate(force=false) {
+    generate() {
         if (this.props.allVoccabulary.length == 0) {
             return;
         }
 
-        if (!force && ((this.state || {}).working || []).length>0) {
-            return;
-        }
+        const currentWorking = (this.state || {}).working || [];
+        const currentQuiz = (this.state || {}).quiz || [];
+        const currentFirstSuccess = (this.state || {}).firstSuccess || [];
+        const currentSecondSuccess = (this.state || {}).secondSuccess || [];
 
-        const working: Vocabulary[] = this.sort(this.props.count);
+        currentFirstSuccess.forEach((val: boolean, idx: number) => {
+            if (val && currentWorking.length>idx) {
+                currentWorking[idx] = {fr:'', es:''};
+            }
+        });
 
-        // melt the answers.
-        const quiz = this.answers(working);
+        const bucketWords = this.sort(this.props.count);
+        
+        let idx = 0;
+        const newWords: Vocabulary[] = [];
+        const working = Array.from(Array(this.props.count).keys()).map((key: number)=> {
+            // array must be enlarged.
+            if (currentWorking.length < key) {
+                const out = bucketWords[idx];
+                idx++;
+                newWords.push(out);
+                return out;
+            }
+
+            // there is a hole !
+            if (!currentWorking[key] || currentWorking[key].fr==='') {
+                const out = bucketWords[idx];
+                idx++;
+                newWords.push(out);
+                return out;
+            }
+
+            return currentWorking[key];
+        });
+
+        const answers = this.answers(newWords);
+        idx = 0;
+        Array.from(Array(this.props.count).keys()).forEach((key: number) => {
+            if (currentSecondSuccess.length>idx && currentSecondSuccess[key]) {
+                currentQuiz[key] = answers[idx];
+                idx++;
+            }
+            if (currentSecondSuccess.length<=idx) {
+                currentQuiz[key] = answers[idx];
+                idx++;
+            }
+        })
+        const quiz = [...currentQuiz];
 
         const firstSuccess = working.map((elt: Vocabulary) => false);
         const secondSuccess = working.map((elt: Vocabulary) => false);

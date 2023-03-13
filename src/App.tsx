@@ -91,7 +91,7 @@ export default class App extends React.PureComponent<Props, State> {
           </div>
         </div>}
         <Counter fail={fail} success={success}/>
-        <Game count={6} allVoccabulary={allVoccabulary} countFail={this.countFail.bind(this)} countSuccess={this.countSuccess.bind(this)}/>
+        <Game count={6} trigger={2} allVoccabulary={allVoccabulary} countFail={this.countFail.bind(this)} countSuccess={this.countSuccess.bind(this)}/>
       </div>
     );
   }
