@@ -60,7 +60,11 @@ export class Service {
             ).pipe(
                 map<Vocabulary[], {(name: string):Vocabulary[]}>((voc: Vocabulary[]) => {
                     const out: {(name: string):Vocabulary[]} = {} as {(name: string):Vocabulary[]};
-                    (out as any)[`${(desc as any)[url]}`] = voc;
+                    const id = url.replace(/^.*=/, '');
+                    const name = Object.keys(desc).filter((k) => {
+                        return (desc as any)[k] === `${id}`
+                    })[0];
+                    (out as any)[name] = voc;
                     return out;
                 }),
             )
